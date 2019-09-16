@@ -1,6 +1,5 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.http import Http404
-from django.utils import timezone
 from operator import attrgetter
 from datetime import datetime
 from django.core.exceptions import ObjectDoesNotExist
@@ -10,9 +9,15 @@ from .forms import *
 def menu_list(request):
     all_menus = Menu.objects.all()
     menus = []
+
+    t4 = datetime(year=2014, month=7, day=12, hour=7, minute=9, second=33)
     for menu in all_menus:
-        if menu.expiration_date >= timezone.now():
-            menus.append(menu)
+        if menu.expiration_date == None:
+            continue
+        else:
+            if menu.expiration_date.replace(tzinfo=None) >= t4.replace(tzinfo=None):
+                menus.append(menu)
+
 
     menus = sorted(menus, key=attrgetter('expiration_date'))
     return render(request, 'menu/list_all_current_menus.html', {'menus': menus})
